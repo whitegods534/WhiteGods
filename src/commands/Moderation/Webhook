@@ -1,0 +1,91 @@
+const {
+    Client,
+    GatewayIntentBits,
+    SlashCommandBuilder,
+    PermissionFlagsBits
+} = require("discord.js");
+
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds]
+});
+
+const command = new SlashCommandBuilder()
+    .setName("createwebhook")
+    .setDescription("Create a webhook embed")
+    .addStringOption(option =>
+        option
+            .setName("title")
+            .setDescription("Embed title")
+            .setRequired(true)
+    )
+    .addStringOption(option =>
+        option
+            .setName("description")
+            .setDescription("Embed description")
+            .setRequired(true)
+    )
+    .addStringOption(option =>
+        option
+            .setName("colour")
+            .setDescription("Hex colour, e.g. #FFFFFF")
+            .setRequired(true)
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageWebhooks);
+
+client.once("ready", async () => {
+    console.log(`Logged in as ${client.user.tag}`);
+
+    await client.application.commands.set([
+        command.toJSON()
+    ]);
+
+    console.log("Command registered.");
+});
+
+client.on("interactionCreate", async interaction => {
+    if (!interaction.isChatInputCommand()) return;
+
+    if (interaction.commandName !== "createwebhook") return;
+
+    if (!interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks)) {
+        return interaction.reply({
+            content: "❌ You need **Manage Webhooks** permission.",
+            ephemeral: true
+        });
+    }
+
+    const title = interaction.options.getString("title");
+    const description = interaction.options.getString("description");
+    let colour = interaction.options.getString("colour");
+
+    if (!/^#[0-9A-Fa-f]{6}$/.test(colour)) {
+        return interaction.reply({
+            content: "❌ Colour must be a hex colour like `#FFFFFF`.",
+            ephemeral: true
+        });
+    }
+
+    const channel = interaction.channel;
+
+    const webhook = await channel.createWebhook({
+        name: "WhiteGods"
+    });
+
+    await interaction.reply({
+        content:
+            `✅ **Webhook created!**\n\n` +
+            `**Name:** ${webhook.name}\n` +
+            `**Channel:** ${channel}\n` +
+            `**URL:** ||${webhook.url}||`
+    });
+
+    await webhook.send({
+        embeds: [{
+            title: title,
+            description: description,
+            color: parseInt(colour.slice(1), 16)
+        }]
+    });
+});
+
+client.login(process.env.TOKEN);
