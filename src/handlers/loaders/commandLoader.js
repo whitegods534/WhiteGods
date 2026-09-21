@@ -262,10 +262,8 @@ async function registerGlobalCommands(client, clientId, commands, totalSubcomman
 
     const commandsToRegister = prepareCommandsForRegistration(commands);
 
-    if (botConfig.commands?.deleteCommands) {
-        logger.info('Clearing existing global commands before registration...');
-        await client.rest.put(`/applications/${clientId}/commands`, { body: [] });
-    }
+logger.info('FORCING CLEAR OF ALL EXISTING GLOBAL COMMANDS...');
+await client.rest.put(`/applications/${clientId}/commands`, { body: [] });
 
     logger.info(`Registering ${commandsToRegister.length} global commands...`);
     await client.rest.put(`/applications/${clientId}/commands`, { body: commandsToRegister });
