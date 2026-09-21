@@ -53,8 +53,18 @@ async function getAllFiles(directory, fileList = []) {
 
 export async function loadCommands(client) {
     client.commands = new Collection();
-    const commandsPath = path.join(__dirname, '../../commands');
-    const commandFiles = await getAllFiles(commandsPath);
+  const commandsPath = path.join(__dirname, '../../commands');
+
+const allCommandFiles = await getAllFiles(commandsPath);
+
+const allowedCommands = new Set([
+    'auth.js',
+    'check.js',
+]);
+
+const commandFiles = allCommandFiles.filter((filePath) =>
+    allowedCommands.has(path.basename(filePath).toLowerCase())
+);
     
     logger.info(`Found ${commandFiles.length} command files to load`);
     
