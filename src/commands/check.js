@@ -6,7 +6,7 @@ const SUPPORT_ROLE = '1544700169277280368';
 export default {
     data: new SlashCommandBuilder()
         .setName('check')
-        .setDescription('Check a Roblox user's authorization')
+        .setDescription('Check a Roblox user')
         .addStringOption(option =>
             option
                 .setName('robloxuser')
@@ -28,7 +28,7 @@ export default {
 
         const username = interaction.options.getString('robloxuser');
 
-        await interaction.reply({
+        return interaction.reply({
             content: `Checking authorization for **${username}**...`
         });
     }
